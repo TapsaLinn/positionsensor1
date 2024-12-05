@@ -5,6 +5,11 @@ const axios = require("axios");
 const cors = require("cors");
 const sql = require("mssql");
 
+const allowedOrigins = [
+  "https://purple-pebble-00c5e1a03.4.azurestaticapps.net",
+  "kohoankka2.azurewebsites.net",
+];
+
 const config = {
   user: process.env.user,
   password: process.env.password,
@@ -16,6 +21,20 @@ const config = {
   },
 };
 
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type"],
+};
+
+app.use(cors(corsOptions));
+
 sql.connect(config, (err) => {
   if (err) {
     console.error("Virhe yhdistettäessä SQL serveriin:", err);
@@ -24,15 +43,9 @@ sql.connect(config, (err) => {
 });
 
 app.use(express.json());
-app.use(cors());
 
 app.get("/", (req, res) => {
   res.send("Morjes!");
-});
-
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  next();
 });
 
 app.get("/litrat", (req, res) => {

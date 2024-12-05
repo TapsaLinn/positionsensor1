@@ -37,8 +37,8 @@ function App() {
       if (data.length > 0 && data[0].Temperature !== undefined) {
         const roundedTemperature = parseFloat(data[0].Temperature).toFixed(2);
         setTemperature(roundedTemperature);
-        setLastUpdated(new Date()); // Päivitetään viimeisin lukuaika
-        setStatus(""); // Tyhjennetään mahdollinen virheviesti
+        setLastUpdated(new Date());
+        setStatus("");
       } else {
         console.error("Data ei sisältänyt odotettua Temperature-arvoa");
         setTemperature(null);
@@ -61,12 +61,11 @@ function App() {
     };
   }, []);
 
-  // Tarkistetaan, onko anturi ollut offline 15 minuutin ajan
   useEffect(() => {
     if (lastUpdated) {
       const checkInterval = setInterval(() => {
         const now = new Date();
-        const diff = (now - lastUpdated) / (1000 * 60); // Erotus minuuteissa
+        const diff = (now - lastUpdated) / (1000 * 60);
         if (diff > 15) {
           setStatus("Anturi offline");
         }

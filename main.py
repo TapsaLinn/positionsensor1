@@ -15,7 +15,6 @@ temp_pin = machine.Pin(15)
 temp_sensor = ds18x20.DS18X20(onewire.OneWire(temp_pin))
 max_liters = 9.9
 
-# Liity WLAN-verkkoon
 def connect_to_wifi():
     wlan = network.WLAN(network.STA_IF)
     wlan.active(True)
@@ -27,7 +26,6 @@ def connect_to_wifi():
     addr = wlan.ifconfig()[0]
     print("Yhdistetty verkkoon, IP-osoite:", addr)
 
-# Ämpärin tilavuuden mittaus ja lähetys
 async def floating_duck():
     global max_liters
     while True:
@@ -57,18 +55,16 @@ async def floating_duck():
         except Exception as e:
             print("Virhe, ei voitu lähettää dataa:", e)
 
-        await asyncio.sleep(1)  # Ämpärin tilavuuden mittaus joka sekunti
+        await asyncio.sleep(1)
 
-# Lämpötilan mittaus ja lähetys
 async def measure_temperature():
     global roms
     while True:
         temp_sensor.convert_temp()
-        await asyncio.sleep(1)  # Odota, että anturi saa mittauksen valmiiksi
+        await asyncio.sleep(1)
         for rom in roms:
             temp = float(temp_sensor.read_temp(rom))
             print(f"Lämpötila: {temp} °C")
-            # Lähetä lämpötila vain joka 5. sekunti
             url = 'https://kohoankka2.azurewebsites.net/post_temp'
             headers = {'Content-Type': 'application/json'}
             data = {
@@ -80,9 +76,8 @@ async def measure_temperature():
             except Exception as e:
                 print("Virhe, ei voitu lähettää lämpötilaa:", e)
 
-        await asyncio.sleep(4)  # Lämpötila mitataan joka 5. sekunti
+        await asyncio.sleep(4)
 
-# Päivitä max_liters-arvo viiden sekunnin välein
 async def update_max_liters():
     global max_liters
     while True:
@@ -100,22 +95,20 @@ async def update_max_liters():
         except Exception as e:
             print("Virhe haettaessa max_liters-arvoa:", e)
 
-        await asyncio.sleep(5)  # Tarkista max_liters joka 5. sekunti
+        await asyncio.sleep(5)
 
 async def main():
-    connect_to_wifi()  # Liity WiFi-verkkoon
+    connect_to_wifi()
     global roms
-    roms = temp_sensor.scan()  # Etsi DS18B20-anturi
+    roms = temp_sensor.scan()
     if len(roms) == 0:
         print("Virhe: DS18B20-anturia ei löydy!")
         return
 
-    # Suorita tehtävät samanaikaisesti
     await asyncio.gather(
-        floating_duck(),        # Ämpärin tilavuuden mittaus ja lähetys
-        measure_temperature(),  # Lämpötilan mittaus ja lähetys
-        update_max_liters()     # max_liters-arvon päivitys
+        floating_duck(),
+        measure_temperature(),
+        update_max_liters()
     )
-
-# Suorita pääohjelma
+    
 asyncio.run(main())
