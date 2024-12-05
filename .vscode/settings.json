@@ -1,0 +1,4 @@
+{
+  "appService.defaultWebAppToDeploy": "/subscriptions/f7dbefd1-789e-4b0a-96b6-101b0cf0ec25/resourceGroups/rg-kohoankka2-dev/providers/Microsoft.Web/sites/kohoankka2",
+  "appService.deploySubpath": "API"
+}
