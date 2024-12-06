@@ -27,15 +27,6 @@ function App() {
   };
 
   const fetchTemperature = async () => {
-    if (lastUpdated) {
-      const now = new Date();
-      const diff = (now - lastUpdated) / (1000 * 60);
-      if (diff > 15) {
-        setStatus("Anturi offline");
-        return;
-      }
-    }
-
     try {
       const response = await fetch("https://kohoankka2.azurewebsites.net/temp");
       if (!response.ok) {
@@ -45,9 +36,18 @@ function App() {
 
       if (data.length > 0 && data[0].Temperature !== undefined) {
         const roundedTemperature = parseFloat(data[0].Temperature).toFixed(2);
-        setTemperature(roundedTemperature);
-        setLastUpdated(new Date());
-        setStatus("");
+        const createdAt = new Date(data[0].CreatedAt);
+        const now = new Date();
+        const diffMinutes = (now - createdAt) / (1000 * 60); // Minuutteina
+
+        if (diffMinutes > 15) {
+          setTemperature(null);
+          setStatus("Anturi offline");
+        } else {
+          setTemperature(roundedTemperature);
+          setLastUpdated(createdAt);
+          setStatus("");
+        }
       } else {
         console.error("Data ei sisältänyt odotettua Temperature-arvoa");
         setTemperature(null);
