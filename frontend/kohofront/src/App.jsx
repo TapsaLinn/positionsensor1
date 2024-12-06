@@ -36,9 +36,9 @@ function App() {
 
       if (data.length > 0 && data[0].Temperature !== undefined) {
         const roundedTemperature = parseFloat(data[0].Temperature).toFixed(2);
-        const createdAt = new Date(data[0].CreatedAt);
+        const createdAt = parseCreatedAt(data[0].CreatedAt);
         const now = new Date();
-        const diffMinutes = (now - createdAt) / (1000 * 60); // Minuutteina
+        const diffMinutes = (now - createdAt) / (1000 * 60);
 
         if (diffMinutes > 15) {
           setTemperature(null);
@@ -58,6 +58,17 @@ function App() {
       setTemperature(null);
       setStatus("Anturi offline");
     }
+  };
+
+  const parseCreatedAt = (createdAt) => {
+    let date = new Date(createdAt);
+    if (isNaN(date)) {
+      const [datePart, timePart] = createdAt.split(" ");
+      const [day, month, year] = datePart.split(".");
+      const isoString = `${year}-${month}-${day}T${timePart}Z`;
+      date = new Date(isoString);
+    }
+    return date;
   };
 
   useEffect(() => {
