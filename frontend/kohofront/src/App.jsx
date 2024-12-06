@@ -148,13 +148,11 @@ function App() {
             />
             <div className="napit">
               <div className="lämpötila-osio">
-                {status && <div style={{ color: "red" }}>{status}</div>}
+                {status && <div>{status}</div>}
                 {temperature !== null && (
-                  <div className="lämpö-display">
-                    Veden lämpötila: {temperature} °C
-                  </div>
+                  <div className="lämpö-display">{temperature} °C</div>
                 )}
-                <button onClick={fetchTemperature}>Hae veden lämpötila</button>
+                <button onClick={fetchTemperature}>Hae lämpötila</button>
               </div>
               <div className="litrat">
                 <div className="inputti">
