@@ -22,16 +22,11 @@ function App() {
 
       setChartData(transformedData);
 
-      if (latestData.length > 0 && latestData[0].CreatedAt) {
+      if (latestData.length > 0) {
+        console.log("Raaka CreatedAt:", latestData[0].CreatedAt);
         const latestCreatedAt = parseCreatedAt(latestData[0].CreatedAt);
-        if (!isNaN(latestCreatedAt)) {
-          console.log("Päivitetään lastUpdated:", latestCreatedAt);
-          setLastUpdated(latestCreatedAt);
-        } else {
-          console.error(
-            "Virheellinen CreatedAt, ei voida päivittää lastUpdated"
-          );
-        }
+        console.log("Parsettu CreatedAt:", latestCreatedAt);
+        setLastUpdated(latestCreatedAt);
       }
     } catch (error) {
       console.error("Virhe datan haussa:", error);
@@ -50,23 +45,19 @@ function App() {
         const roundedTemperature = parseFloat(data[0].Temperature).toFixed(2);
 
         const now = new Date();
+        console.log("Nykyhetki:", now);
+        console.log("lastUpdated:", lastUpdated);
+
         if (lastUpdated) {
           const diffMinutes = (now - lastUpdated) / (1000 * 60);
-          console.log(
-            `Viime päivityksestä kulunut: ${diffMinutes.toFixed(2)} min`
-          );
-
+          console.log("Erotus minuuteissa:", diffMinutes.toFixed(2));
           if (diffMinutes > 15) {
-            console.warn(
-              "Päivitys yli 15 minuuttia vanha, asetetaan offline-tila"
-            );
             setTemperature(null);
             setStatus("Anturi offline");
             return;
           }
         }
 
-        console.log("Lämpötila asetettu:", roundedTemperature);
         setTemperature(roundedTemperature);
         setStatus("");
       } else {
@@ -92,7 +83,7 @@ function App() {
       try {
         const [datePart, timePart] = createdAt.split(" ");
         const [day, month, year] = datePart.split(".");
-        const isoString = `${year}-${month}-${day}T${timePart}Z`;
+        const isoString = `${year}-${month}-${day}T${timePart}+02:00`; // Huomioi aikavyöhyke!
         date = new Date(isoString);
       } catch (error) {
         console.error("Virhe CreatedAt-muodon käsittelyssä:", error);
