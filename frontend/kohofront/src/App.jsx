@@ -22,9 +22,16 @@ function App() {
 
       setChartData(transformedData);
 
-      if (latestData.length > 0) {
+      if (latestData.length > 0 && latestData[0].CreatedAt) {
         const latestCreatedAt = parseCreatedAt(latestData[0].CreatedAt);
-        setLastUpdated(latestCreatedAt);
+        if (!isNaN(latestCreatedAt)) {
+          console.log("Päivitetään lastUpdated:", latestCreatedAt);
+          setLastUpdated(latestCreatedAt);
+        } else {
+          console.error(
+            "Virheellinen CreatedAt, ei voida päivittää lastUpdated"
+          );
+        }
       }
     } catch (error) {
       console.error("Virhe datan haussa:", error);
@@ -45,13 +52,21 @@ function App() {
         const now = new Date();
         if (lastUpdated) {
           const diffMinutes = (now - lastUpdated) / (1000 * 60);
+          console.log(
+            `Viime päivityksestä kulunut: ${diffMinutes.toFixed(2)} min`
+          );
+
           if (diffMinutes > 15) {
+            console.warn(
+              "Päivitys yli 15 minuuttia vanha, asetetaan offline-tila"
+            );
             setTemperature(null);
             setStatus("Anturi offline");
             return;
           }
         }
 
+        console.log("Lämpötila asetettu:", roundedTemperature);
         setTemperature(roundedTemperature);
         setStatus("");
       } else {
