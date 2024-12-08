@@ -42,18 +42,16 @@ function App() {
       if (data.length > 0 && data[0].Temperature !== undefined) {
         const roundedTemperature = parseFloat(data[0].Temperature).toFixed(2);
 
-        const now = new Date(); // Nykyhetki (paikallinen aika)
+        const now = new Date();
 
-        // Varmistetaan, että vertaillaan paikallista aikaa
         if (lastUpdated) {
-          // Lisätään aikavyöhykkeelle 2 tuntia (UTC +2)
           const localLastUpdated = new Date(
             lastUpdated.getTime() + 2 * 60 * 60 * 1000
           );
 
           const diffMinutes =
             (now.getTime() - localLastUpdated.getTime()) / (1000 * 60);
-          console.log(`Viime päivityksestä kulunut: ${diffMinutes} min`); // Debuggaus
+          console.log(`Viime päivityksestä kulunut: ${diffMinutes} min`);
 
           if (diffMinutes > 15) {
             setTemperature(null);
