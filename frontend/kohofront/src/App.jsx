@@ -61,16 +61,25 @@ function App() {
   };
 
   const parseCreatedAt = (createdAt) => {
+    if (!createdAt || typeof createdAt !== "string") {
+      console.error("Virheellinen CreatedAt-arvo:", createdAt);
+      return new Date(NaN);
+    }
+
     let date = new Date(createdAt);
     if (isNaN(date)) {
-      const [datePart, timePart] = createdAt.split(" ");
-      const [day, month, year] = datePart.split(".");
-      const isoString = `${year}-${month}-${day}T${timePart}Z`;
-      date = new Date(isoString);
+      try {
+        const [datePart, timePart] = createdAt.split(" ");
+        const [day, month, year] = datePart.split(".");
+        const isoString = `${year}-${month}-${day}T${timePart}Z`;
+        date = new Date(isoString);
+      } catch (error) {
+        console.error("Virhe CreatedAt-muodon käsittelyssä:", error);
+        return new Date(NaN);
+      }
     }
     return date;
   };
-
   useEffect(() => {
     fetchData();
     const dataInterval = setInterval(() => {
