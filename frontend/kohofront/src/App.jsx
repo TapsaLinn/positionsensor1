@@ -43,13 +43,12 @@ function App() {
         const roundedTemperature = parseFloat(data[0].Temperature).toFixed(2);
 
         const now = new Date();
-        console.log("Nykyhetki (UTC):", now);
+        const lastUpdatedUTC = new Date(lastUpdated).toISOString();
 
-        const lastUpdatedUTC = new Date(lastUpdated);
-
+        console.log("Nykyhetki (UTC):", now.toISOString());
         console.log("lastUpdated (UTC):", lastUpdatedUTC);
 
-        const diffMinutes = (now - lastUpdatedUTC) / (1000 * 60);
+        const diffMinutes = (now - new Date(lastUpdatedUTC)) / (1000 * 60);
         console.log("Erotus minuuteissa (UTC):", diffMinutes.toFixed(2));
 
         if (diffMinutes > 15) {
