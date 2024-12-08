@@ -43,18 +43,14 @@ function App() {
         const roundedTemperature = parseFloat(data[0].Temperature).toFixed(2);
 
         const now = new Date();
-        const lastUpdatedUTC = new Date(lastUpdated).toISOString();
-
-        console.log("Nykyhetki (UTC):", now.toISOString());
-        console.log("lastUpdated (UTC):", lastUpdatedUTC);
-
-        const diffMinutes = (now - new Date(lastUpdatedUTC)) / (1000 * 60);
-        console.log("Erotus minuuteissa (UTC):", diffMinutes.toFixed(2));
-
-        if (diffMinutes > 15) {
-          setTemperature(null);
-          setStatus("Anturi offline");
-          return;
+        if (lastUpdated) {
+          const diffMinutes =
+            (now.getTime() - lastUpdated.getTime()) / (1000 * 60);
+          if (diffMinutes > 15) {
+            setTemperature(null);
+            setStatus("Anturi offline");
+            return;
+          }
         }
 
         setTemperature(roundedTemperature);
@@ -77,18 +73,16 @@ function App() {
       return new Date(NaN);
     }
 
-    let date = new Date(createdAt);
+    // Luo Date-objekti suoraan UTC:stä, koska saamme sen ISO 8601-muodossa (esim. 2024-12-08T21:01:11.997Z)
+    const date = new Date(createdAt);
+
+    // Varmistetaan, että aika on UTC (ei paikallinen aikavyöhyke)
     if (isNaN(date)) {
-      try {
-        const [datePart, timePart] = createdAt.split(" ");
-        const [day, month, year] = datePart.split(".");
-        const isoString = `${year}-${month}-${day}T${timePart}Z`;
-        date = new Date(isoString);
-      } catch (error) {
-        console.error("Virhe CreatedAt-muodon käsittelyssä:", error);
-        return new Date(NaN);
-      }
+      console.error("Virheellinen CreatedAt-arvo:", createdAt);
+      return new Date(NaN);
     }
+
+    console.log("Parsettu CreatedAt (UTC):", date.toISOString());
     return date;
   };
 
