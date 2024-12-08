@@ -80,6 +80,7 @@ function App() {
     }
     return date;
   };
+
   useEffect(() => {
     fetchData();
     const dataInterval = setInterval(() => {
