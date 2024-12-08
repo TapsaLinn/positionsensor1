@@ -42,11 +42,9 @@ function App() {
       if (data.length > 0 && data[0].Temperature !== undefined) {
         const roundedTemperature = parseFloat(data[0].Temperature).toFixed(2);
 
-        // Nykyinen aika UTC-aikana
         const now = new Date();
         console.log("Nykyhetki (UTC):", now);
 
-        // Muunna 'lastUpdated' UTC-aikaksi
         const lastUpdatedUTC = new Date(lastUpdated);
 
         console.log("lastUpdated (UTC):", lastUpdatedUTC);
@@ -54,14 +52,12 @@ function App() {
         const diffMinutes = (now - lastUpdatedUTC) / (1000 * 60);
         console.log("Erotus minuuteissa (UTC):", diffMinutes.toFixed(2));
 
-        // Jos ero on suurempi kuin 15 minuuttia, asetetaan anturi offline-tilaan
         if (diffMinutes > 15) {
           setTemperature(null);
           setStatus("Anturi offline");
           return;
         }
 
-        // Muutoin asetetaan lämpötila ja tyhjennetään status
         setTemperature(roundedTemperature);
         setStatus("");
       } else {
