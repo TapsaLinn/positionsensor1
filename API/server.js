@@ -1,13 +1,13 @@
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
-const axios = require("axios");
 const cors = require("cors");
 const sql = require("mssql");
 
 const allowedOrigins = [
   "https://purple-pebble-00c5e1a03.4.azurestaticapps.net",
   "kohoankka2.azurewebsites.net",
+  "https://zealous-stone-036c08d03.4.azurestaticapps.net",
 ];
 
 const config = {
