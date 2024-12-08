@@ -23,9 +23,7 @@ function App() {
       setChartData(transformedData);
 
       if (latestData.length > 0) {
-        console.log("Raaka CreatedAt:", latestData[0].CreatedAt);
         const latestCreatedAt = parseCreatedAt(latestData[0].CreatedAt);
-        console.log("Parsettu CreatedAt:", latestCreatedAt);
         setLastUpdated(latestCreatedAt);
       }
     } catch (error) {
@@ -44,20 +42,26 @@ function App() {
       if (data.length > 0 && data[0].Temperature !== undefined) {
         const roundedTemperature = parseFloat(data[0].Temperature).toFixed(2);
 
+        // Nykyinen aika UTC-aikana
         const now = new Date();
-        console.log("Nykyhetki:", now);
-        console.log("lastUpdated:", lastUpdated);
+        console.log("Nykyhetki (UTC):", now);
 
-        if (lastUpdated) {
-          const diffMinutes = (now - lastUpdated) / (1000 * 60);
-          console.log("Erotus minuuteissa:", diffMinutes.toFixed(2));
-          if (diffMinutes > 15) {
-            setTemperature(null);
-            setStatus("Anturi offline");
-            return;
-          }
+        // Muunna 'lastUpdated' UTC-aikaksi
+        const lastUpdatedUTC = new Date(lastUpdated);
+
+        console.log("lastUpdated (UTC):", lastUpdatedUTC);
+
+        const diffMinutes = (now - lastUpdatedUTC) / (1000 * 60);
+        console.log("Erotus minuuteissa (UTC):", diffMinutes.toFixed(2));
+
+        // Jos ero on suurempi kuin 15 minuuttia, asetetaan anturi offline-tilaan
+        if (diffMinutes > 15) {
+          setTemperature(null);
+          setStatus("Anturi offline");
+          return;
         }
 
+        // Muutoin asetetaan lämpötila ja tyhjennetään status
         setTemperature(roundedTemperature);
         setStatus("");
       } else {
@@ -83,7 +87,7 @@ function App() {
       try {
         const [datePart, timePart] = createdAt.split(" ");
         const [day, month, year] = datePart.split(".");
-        const isoString = `${year}-${month}-${day}T${timePart}+02:00`; // Huomioi aikavyöhyke!
+        const isoString = `${year}-${month}-${day}T${timePart}Z`;
         date = new Date(isoString);
       } catch (error) {
         console.error("Virhe CreatedAt-muodon käsittelyssä:", error);
