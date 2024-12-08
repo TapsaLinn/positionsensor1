@@ -21,10 +21,16 @@ function App() {
       ];
 
       setChartData(transformedData);
+
+      if (latestData.length > 0) {
+        const latestCreatedAt = parseCreatedAt(latestData[0].CreatedAt);
+        setLastUpdated(latestCreatedAt);
+      }
     } catch (error) {
       console.error("Virhe datan haussa:", error);
     }
   };
+
   const fetchTemperature = async () => {
     try {
       const response = await fetch("https://kohoankka2.azurewebsites.net/temp");
@@ -33,33 +39,21 @@ function App() {
       }
       const data = await response.json();
 
-      console.log("Palvelimen vastaus:", data);
-
       if (data.length > 0 && data[0].Temperature !== undefined) {
         const roundedTemperature = parseFloat(data[0].Temperature).toFixed(2);
 
-        const createdAtRaw = data[0].CreatedAt;
-        console.log("Raw CreatedAt:", createdAtRaw);
-
-        if (!createdAtRaw || typeof createdAtRaw !== "string") {
-          console.error("Virheellinen CreatedAt-arvo:", createdAtRaw);
-          setTemperature(null);
-          setStatus("Anturi offline");
-          return;
-        }
-
-        const createdAt = parseCreatedAt(createdAtRaw);
         const now = new Date();
-        const diffMinutes = (now - createdAt) / (1000 * 60);
-
-        if (diffMinutes > 15) {
-          setTemperature(null);
-          setStatus("Anturi offline");
-        } else {
-          setTemperature(roundedTemperature);
-          setLastUpdated(createdAt);
-          setStatus("");
+        if (lastUpdated) {
+          const diffMinutes = (now - lastUpdated) / (1000 * 60);
+          if (diffMinutes > 15) {
+            setTemperature(null);
+            setStatus("Anturi offline");
+            return;
+          }
         }
+
+        setTemperature(roundedTemperature);
+        setStatus("");
       } else {
         console.error("Data ei sisältänyt odotettua Temperature-arvoa");
         setTemperature(null);
@@ -70,6 +64,27 @@ function App() {
       setTemperature(null);
       setStatus("Anturi offline");
     }
+  };
+
+  const parseCreatedAt = (createdAt) => {
+    if (!createdAt || typeof createdAt !== "string") {
+      console.error("Virheellinen CreatedAt-arvo:", createdAt);
+      return new Date(NaN);
+    }
+
+    let date = new Date(createdAt);
+    if (isNaN(date)) {
+      try {
+        const [datePart, timePart] = createdAt.split(" ");
+        const [day, month, year] = datePart.split(".");
+        const isoString = `${year}-${month}-${day}T${timePart}Z`;
+        date = new Date(isoString);
+      } catch (error) {
+        console.error("Virhe CreatedAt-muodon käsittelyssä:", error);
+        return new Date(NaN);
+      }
+    }
+    return date;
   };
 
   useEffect(() => {
